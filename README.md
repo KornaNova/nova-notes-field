@@ -78,7 +78,7 @@ To add notes programmatically, use the method provided by the `HasNotes` trait:
  * Creates a new note and attaches it to the model.
  *
  * @param string $note The note text which can contain raw HTML.
- * @param bool $user Enables or disables the use of `Auth::user()` to set as the creator.
+ * @param bool $user Enables or disables the use of `Auth::guard(config('nova.guard'))->user()` to set as the creator.
  * @param bool $system Defines whether the note is system created and can be deleted or not.
  * @return \Outl1ne\NovaNotesField\Models\Note
  **/
