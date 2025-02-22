@@ -47,5 +47,8 @@
       "type": "composer",
       "url": "https://nova.laravel.com"
     }
-  ]
+  ],
+  "require-dev": {
+    "laravel/nova-devtool": "^1.6"
+  }
 }

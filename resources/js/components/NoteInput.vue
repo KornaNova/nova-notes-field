@@ -22,20 +22,23 @@
     />
 
     <div class="whitespace-no-wrap ml-2">
-      <DefaultButton
+      <Button
         class="o1-inline-flex o1-items-center o1-relative o1-ml-auto o1-whitespace-nowrap"
         @click="$emit('onSubmit')"
         type="button"
         :disabled="loading || !modelValue"
       >
         {{ editing ? __('novaNotesField.updateNote') : __('novaNotesField.addNote') }}
-      </DefaultButton>
+      </Button>
     </div>
   </div>
 </template>
 
 <script>
+import { Button } from 'laravel-nova-ui';
+
 export default {
+  components: { Button },
   props: ['placeholder', 'modelValue', 'loading', 'trixEnabled', 'fullWidth', 'editing'],
   methods: {
     onEnter(e) {

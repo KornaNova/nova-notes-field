@@ -23,10 +23,10 @@
     />
 
     <div class="o1-flex o1-justify-center o1-mb-3 o1-mt-3" v-if="hasMoreToShow">
-      <DefaultButton style="height: 24px; line-height: 24px" @click="maxToShow = void 0">
+      <Button style="height: 24px; line-height: 24px" @click="maxToShow = void 0">
         <!-- Cast to String to fix runtime crash in Nova 3.8.0 to 3.8.2 -->
         {{ __('novaNotesField.showMoreNotes', { hiddenNoteCount: String(notes.length - maxToShow) }) }}
-      </DefaultButton>
+      </Button>
     </div>
 
     <DeleteNoteConfirmationModal
