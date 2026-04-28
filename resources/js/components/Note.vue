@@ -11,8 +11,13 @@
   </template>
   <template v-else>
     <div
-      class="o1-bg-white dark:o1-bg-slate-800 o1-rounded-md o1-border o1-border-gray-200 dark:o1-border-gray-700 o1-px-2 o1-py-2 o1-flex o1-mb-2 o1-mt-2"
-      :class="{ 'w-full': fullWidth, 'o1-w-3/5': !fullWidth }"
+      class="o1-rounded-md o1-border o1-px-2 o1-py-2 o1-flex o1-mb-2 o1-mt-2"
+      :class="{
+        'w-full': fullWidth,
+        'o1-w-3/5': !fullWidth,
+        'o1-border-primary-400 dark:o1-border-gray-600 o1-bg-white dark:o1-bg-slate-700': !!note.pinned_at,
+        'o1-border-gray-200 dark:o1-border-gray-700 o1-bg-white dark:o1-bg-slate-800': !note.pinned_at,
+      }"
     >
       <div class="o1-rounded-md o1-w-12 o1-h-12 o1-mr-3 o1-overflow-hidden o1-text-center" style="flex-shrink: 0">
         <!-- Image -->
@@ -44,11 +49,21 @@
             {{ formattedCreatedAtDate }}{{ note.system ? ` [${__('novaNotesField.systemUserName')}]` : '' }}
           </span>
 
+          <span v-if="note.pinned_at" class="o1-text-xs o1-font-semibold text-primary-500 o1-mr-2">
+            [{{ __('novaNotesField.pinned') }}]
+          </span>
+
           <span
             v-if="!note.system && note.can_edit"
             class="o1-text-xs hover:o1-underline o1-cursor-pointer o1-text-primary-400 o1-mr-2"
             @click="onEditRequested"
             >[{{ __('novaNotesField.edit') }}]</span
+          >
+          <span
+            v-if="!note.system && note.can_pin"
+            class="o1-text-xs hover:o1-underline o1-cursor-pointer o1-text-primary-400 o1-mr-2"
+            @click="togglePin"
+            >[{{ note.pinned_at ? __('novaNotesField.unpin') : __('novaNotesField.pin') }}]</span
           >
           <span
             v-if="!note.system && note.can_delete"
@@ -60,7 +75,11 @@
         </div>
 
         <!-- Content -->
-        <p v-html="note.text" class="o1-whitespace-pre-wrap o1-text-gray-800 dark:o1-text-gray-400"></p>
+        <p
+          v-html="note.text"
+          class="o1-whitespace-pre-wrap o1-text-base o1-text-gray-800 dark:o1-text-gray-300"
+          :class="{ 'text-primary-500 o1-font-bold': note.pinned_at }"
+        ></p>
       </div>
     </div>
   </template>
@@ -99,6 +118,20 @@ export default {
         this.$emit('noteEdited', { note: this.note, editedText: this.editedText });
       } catch (e) {
         Nova.error('Unknown error when trying to edit the note.');
+      }
+
+      this.loading = false;
+    },
+    async togglePin() {
+      this.loading = true;
+
+      try {
+        await Nova.request().patch(`/nova-vendor/nova-notes/notes/${this.note.id}/pin`, {
+          pinned: !this.note.pinned_at,
+        });
+        this.$emit('pinChanged', this.note);
+      } catch (e) {
+        Nova.error('Unknown error when trying to pin the note.');
       }
 
       this.loading = false;

@@ -19,6 +19,7 @@
       :date-format="dateFormat"
       :trixEnabled="trixEnabled"
       @noteEdited="onNoteEdited"
+      @pinChanged="onNotePinChanged"
       @onDeleteRequested="onNoteDeleteRequested"
     />
 
@@ -127,6 +128,9 @@ export default {
     },
     onNoteEdited({ note, editedText }) {
       note.text = editedText;
+      this.fetchNotes();
+    },
+    onNotePinChanged() {
       this.fetchNotes();
     },
     onNoteDeleteRequested(note) {

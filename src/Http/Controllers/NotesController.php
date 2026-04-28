@@ -17,7 +17,12 @@ class NotesController extends Controller
 
         $model = $validationResult['model'];
         $displayOrder = config('nova-notes-field.display_order', 'DESC');
-        $notes = $model->notes()->orderBy('created_at', $displayOrder)->orderBy('id', $displayOrder)->get();
+        $notes = $model->notes()
+            ->orderByRaw('CASE WHEN pinned_at IS NULL THEN 1 ELSE 0 END ASC')
+            ->orderBy('pinned_at', 'desc')
+            ->orderBy('created_at', $displayOrder)
+            ->orderBy('id', $displayOrder)
+            ->get();
 
         return response()->json([
             'date_format' => config('nova-notes-field.date_format', 'dd MMM yyyy HH:mm'),
@@ -53,6 +58,20 @@ class NotesController extends Controller
 
         $note->update([
             'text' => $noteText,
+        ]);
+
+        return response('', 204);
+    }
+
+    // PATCH /notes/{note}/pin
+    public function pinNote(Request $request, Note $note)
+    {
+        if (!$note->can_pin) return response()->json(['error' => 'unauthorized'], 400);
+
+        $pinned = (bool) $request->input('pinned', true);
+
+        $note->update([
+            'pinned_at' => $pinned ? now() : null,
         ]);
 
         return response('', 204);

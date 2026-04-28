@@ -43,6 +43,22 @@ trait HasNotes
     }
 
     /**
+     * Pin or unpin a note attached to this model.
+     *
+     * @param int|string $noteId The ID of the note to pin or unpin.
+     * @param bool $pinned True to pin, false to unpin.
+     * @return \Outl1ne\NovaNotesField\Models\Note
+     **/
+    public function pinNote($noteId, $pinned = true)
+    {
+        $note = $this->notes()->where('id', '=', $noteId)->firstOrFail();
+        $note->update([
+            'pinned_at' => $pinned ? now() : null,
+        ]);
+        return $note;
+    }
+
+    /**
      * Deletes a note with given ID and dissociates it from the model.
      *
      * @param int|string $noteId The ID of the note to delete.

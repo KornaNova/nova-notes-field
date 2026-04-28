@@ -10,10 +10,10 @@ use Outl1ne\NovaNotesField\NotesFieldServiceProvider;
 class Note extends Model
 {
     protected $table = 'nova_notes';
-    protected $casts = ['system' => 'bool'];
-    protected $fillable = ['model_id', 'model_type', 'text', 'created_by', 'system', 'notable_type', 'notable_id'];
+    protected $casts = ['system' => 'bool', 'pinned_at' => 'datetime'];
+    protected $fillable = ['model_id', 'model_type', 'text', 'created_by', 'system', 'notable_type', 'notable_id', 'pinned_at'];
     protected $hidden = ['createdBy', 'notable_type', 'notable_id'];
-    protected $appends = ['created_by_avatar_url', 'created_by_name', 'can_delete', 'can_edit'];
+    protected $appends = ['created_by_avatar_url', 'created_by_name', 'can_delete', 'can_edit', 'can_pin'];
 
     public function __construct(array $attributes = [])
     {
@@ -80,6 +80,24 @@ class Note extends Model
     public function getCanEditAttribute()
     {
         if (Gate::has('edit-nova-note')) return Gate::check('edit-nova-note', $this);
+
+        if (config()->get('nova.guard')) {
+            $user = Auth::guard(config('nova.guard'))->user();
+        } else {
+            $user = Auth::user();
+        }
+
+        if (empty($user)) return false;
+
+        $createdBy = $this->createdBy;
+        if (empty($createdBy)) return false;
+
+        return $user->id === $createdBy->id;
+    }
+
+    public function getCanPinAttribute()
+    {
+        if (Gate::has('pin-nova-note')) return Gate::check('pin-nova-note', $this);
 
         if (config()->get('nova.guard')) {
             $user = Auth::guard(config('nova.guard'))->user();

@@ -9,5 +9,8 @@
   "novaNotesField.cancel": "Cancel",
   "novaNotesField.deleteNoteTitle": "Delete Note",
   "novaNotesField.systemUserAbbreviation": "SYS",
-  "novaNotesField.systemUserName": "System"
+  "novaNotesField.systemUserName": "System",
+  "novaNotesField.pin": "Pin",
+  "novaNotesField.unpin": "Unpin",
+  "novaNotesField.pinned": "Pinned"
 }
