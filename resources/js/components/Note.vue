@@ -105,7 +105,8 @@
           class="o1-whitespace-pre-wrap o1-text-base o1-text-gray-800 dark:o1-text-gray-300"
           :class="{
             'text-primary-500 o1-font-bold': note.pinned_at,
-            'o1-line-through': !!note.completed_at,
+            'o1-text-gray-800 dark:o1-text-gray-300': !note.completed_at,
+            'o1-text-gray-700 dark:o1-text-gray-400': !!note.completed_at,
           }"
         ></p>
       </div>
@@ -177,6 +178,7 @@ export default {
         });
         this.isEditing = false;
         this.$emit('noteEdited', { note: this.note, editedText: this.editedText });
+        Nova.$emit('metric-refresh');
       } catch (e) {
         Nova.error('Unknown error when trying to edit the note.');
       }
@@ -191,6 +193,7 @@ export default {
           pinned: !this.note.pinned_at,
         });
         this.$emit('pinChanged', this.note);
+        Nova.$emit('metric-refresh');
       } catch (e) {
         Nova.error('Unknown error when trying to pin the note.');
       }
@@ -205,6 +208,7 @@ export default {
           completed: !this.note.completed_at,
         });
         this.$emit('completeChanged', this.note);
+        Nova.$emit('metric-refresh');
       } catch (e) {
         Nova.error('Unknown error when trying to update the note.');
       }

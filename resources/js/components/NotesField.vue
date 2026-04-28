@@ -127,6 +127,7 @@ export default {
           { params: this.params }
         );
         await this.fetchNotes();
+        Nova.$emit('metric-refresh');
       } catch (e) {
         Nova.error(this.__('There was a problem submitting the form.'));
       }
@@ -146,6 +147,7 @@ export default {
           data: { noteId: note.id },
         });
         await this.fetchNotes();
+        Nova.$emit('metric-refresh');
       } catch (e) {
         Nova.error('Unknown error when trying to delete the note.');
       }
