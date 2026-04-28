@@ -10,10 +10,22 @@ use Outl1ne\NovaNotesField\NotesFieldServiceProvider;
 class Note extends Model
 {
     protected $table = 'nova_notes';
-    protected $casts = ['system' => 'bool', 'pinned_at' => 'datetime'];
-    protected $fillable = ['model_id', 'model_type', 'text', 'created_by', 'system', 'notable_type', 'notable_id', 'pinned_at'];
-    protected $hidden = ['createdBy', 'notable_type', 'notable_id'];
-    protected $appends = ['created_by_avatar_url', 'created_by_name', 'can_delete', 'can_edit', 'can_pin'];
+    protected $casts = [
+        'system' => 'bool',
+        'pinned_at' => 'datetime',
+        'due_date' => 'date:Y-m-d',
+        'completed_at' => 'datetime',
+    ];
+    protected $fillable = [
+        'model_id', 'model_type', 'text', 'created_by', 'system', 'notable_type', 'notable_id',
+        'pinned_at', 'due_date', 'assigned_to', 'completed_at',
+    ];
+    protected $hidden = ['createdBy', 'assignee', 'notable_type', 'notable_id'];
+    protected $appends = [
+        'created_by_avatar_url', 'created_by_name',
+        'can_delete', 'can_edit', 'can_pin', 'can_complete',
+        'assignee_name',
+    ];
 
     public function __construct(array $attributes = [])
     {
@@ -28,10 +40,30 @@ class Note extends Model
 
     public function createdBy()
     {
+        return $this->belongsTo(static::resolveUserClass(), 'created_by');
+    }
+
+    public function assignee()
+    {
+        return $this->belongsTo(static::resolveUserClass(), 'assigned_to');
+    }
+
+    public static function resolveUserClass()
+    {
         $provider = 'users';
         if (config('nova.guard')) $provider = config('auth.guards.' . config('nova.guard') . '.provider');
-        $userClass = config('auth.providers.' . $provider . '.model');
-        return $this->belongsTo($userClass, 'created_by');
+        return config('auth.providers.' . $provider . '.model');
+    }
+
+    public function getAssigneeNameAttribute()
+    {
+        $user = $this->assignee;
+        if (empty($user)) return null;
+
+        if (!empty($user->name)) return $user->name;
+        if (!empty($user->first_name)) return $user->first_name . (!empty($user->last_name) ? " {$user->last_name}" : '');
+        if (!empty($user->email)) return $user->email;
+        return null;
     }
 
     public function getCreatedByNameAttribute()
@@ -106,6 +138,26 @@ class Note extends Model
         }
 
         if (empty($user)) return false;
+
+        $createdBy = $this->createdBy;
+        if (empty($createdBy)) return false;
+
+        return $user->id === $createdBy->id;
+    }
+
+    public function getCanCompleteAttribute()
+    {
+        if (Gate::has('complete-nova-note')) return Gate::check('complete-nova-note', $this);
+
+        if (config()->get('nova.guard')) {
+            $user = Auth::guard(config('nova.guard'))->user();
+        } else {
+            $user = Auth::user();
+        }
+
+        if (empty($user)) return false;
+
+        if ($this->assigned_to && $user->id === (int) $this->assigned_to) return true;
 
         $createdBy = $this->createdBy;
         if (empty($createdBy)) return false;

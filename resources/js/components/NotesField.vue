@@ -1,14 +1,17 @@
 <template>
   <div :class="classes">
-    <h3 class="o1-text-gray-600 dark:o1-text-slate-400 o1-mb-4">{{ field.name }}</h3>
+    <!-- <h3 class="o1-text-gray-600 dark:o1-text-slate-400 o1-mb-4">{{ field.name }}</h3> -->
     <NoteInput
       v-if="field.addingNotesEnabled"
       v-model.trim="note"
+      v-model:dueDate="noteDueDate"
+      v-model:assignedTo="noteAssignedTo"
       @onSubmit="createNote"
       :loading="loading"
       :fullWidth="field.fullWidth"
       :placeholder="field.placeholder || __('novaNotesField.defaultPlaceholder')"
       :trixEnabled="trixEnabled"
+      :users="users"
     />
 
     <Note
@@ -18,8 +21,10 @@
       :key="note.id"
       :date-format="dateFormat"
       :trixEnabled="trixEnabled"
+      :users="users"
       @noteEdited="onNoteEdited"
       @pinChanged="onNotePinChanged"
+      @completeChanged="onNoteCompleteChanged"
       @onDeleteRequested="onNoteDeleteRequested"
     />
 
@@ -48,8 +53,11 @@ export default {
   props: ['resourceName', 'resourceId', 'field', 'extraClass'],
   data: () => ({
     note: '',
+    noteDueDate: null,
+    noteAssignedTo: null,
     loading: true,
     notes: [],
+    users: [],
     showDeleteConfirmation: false,
     noteToDelete: void 0,
     maxToShow: 5,
@@ -59,6 +67,7 @@ export default {
   }),
   mounted() {
     this.fetchNotes();
+    this.fetchUsers();
   },
   computed: {
     params() {
@@ -96,17 +105,35 @@ export default {
 
       this.loading = false;
     },
+    async fetchUsers() {
+      try {
+        const { data } = await Nova.request().get(`/nova-vendor/nova-notes/users`);
+        if (Array.isArray(data?.users)) this.users = data.users;
+      } catch (e) {
+        // Non-fatal — assignee select will simply be empty.
+      }
+    },
     async createNote() {
       this.loading = true;
 
       try {
-        await Nova.request().post(`/nova-vendor/nova-notes/notes`, { note: this.note }, { params: this.params });
+        await Nova.request().post(
+          `/nova-vendor/nova-notes/notes`,
+          {
+            note: this.note,
+            due_date: this.noteDueDate,
+            assigned_to: this.noteAssignedTo,
+          },
+          { params: this.params }
+        );
         await this.fetchNotes();
       } catch (e) {
         Nova.error(this.__('There was a problem submitting the form.'));
       }
 
       this.note = '';
+      this.noteDueDate = null;
+      this.noteAssignedTo = null;
 
       this.loading = false;
     },
@@ -131,6 +158,9 @@ export default {
       this.fetchNotes();
     },
     onNotePinChanged() {
+      this.fetchNotes();
+    },
+    onNoteCompleteChanged() {
       this.fetchNotes();
     },
     onNoteDeleteRequested(note) {

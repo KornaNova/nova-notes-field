@@ -12,5 +12,11 @@
   "novaNotesField.systemUserName": "Süsteem",
   "novaNotesField.pin": "Kinnita",
   "novaNotesField.unpin": "Eemalda kinnitus",
-  "novaNotesField.pinned": "Kinnitatud"
+  "novaNotesField.pinned": "Kinnitatud",
+  "novaNotesField.dueDate": "Tähtaeg",
+  "novaNotesField.assignee": "Vastutaja",
+  "novaNotesField.unassigned": "Määramata",
+  "novaNotesField.complete": "Märgi tehtuks",
+  "novaNotesField.reopen": "Ava uuesti",
+  "novaNotesField.completed": "Tehtud"
 }

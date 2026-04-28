@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0-beta] - 2026-04-28
+
+Notes can now act as lightweight tasks: pinning, due dates, assignees, and a completion state. Two new migrations are required (`php artisan migrate`).
+
+### Added
+
+- Pinned notes — `[Pin]` / `[Unpin]` action on each note, pinned notes float to the top of the list, multiple pins ordered by most-recently-pinned. New `pinned_at` column.
+- Task fields — optional `due_date` and `assigned_to` per note, set inline next to the textarea/Trix input. Overdue dates render red.
+- Completion state — `[Complete]` / `[Reopen]` action, completed notes get strike-through text and a `[Completed]` badge. New `completed_at` column.
+- Assignee picker — searchable single-select built on `vue-multiselect`, styled to match Nova. The currently authenticated user appears first in the option list.
+- `assignable_users` config option — callable returning the users that can be assigned (defaults to all users from the configured Nova guard provider).
+- New Gates: `pin-nova-note` and `complete-nova-note` (mirrors the existing `edit-nova-note` / `delete-nova-note` pattern). Default fallbacks: pin → creator only, complete → creator or assignee.
+- New API endpoints under `/nova-vendor/nova-notes`: `PATCH /notes/{note}/pin`, `PATCH /notes/{note}/complete`, `GET /users`.
+- `HasNotes` trait helpers: `pinNote($noteId, $pinned = true)`, `completeNote($noteId, $completed = true)`. `addNote` and `editNote` accept an optional `$extra` array (`due_date`, `assigned_to`, `completed_at`, `pinned_at`).
+- Translation keys: `pin`, `unpin`, `pinned`, `dueDate`, `assignee`, `unassigned`, `complete`, `reopen`, `completed` (en + et).
+
+### Changed
+
+- Note ordering now puts pinned notes first (portable `CASE WHEN pinned_at IS NULL` SQL — works on MySQL, Postgres, SQLite).
+- `due_date` is cast as `date:Y-m-d` so it serializes timezone-agnostic — fixes the displayed date being one day off east of UTC.
+- Filled in missing Estonian translations for `edit` and `updateNote`.
+
+### Migrations
+
+- `2026_04_28_000000_add_pinned_at_to_nova_notes_table` — adds `pinned_at` (nullable timestamp).
+- `2026_04_28_000001_add_task_fields_to_nova_notes_table` — adds `due_date` (nullable date), `assigned_to` (nullable unsignedBigInteger), `completed_at` (nullable timestamp).
+
 ## [4.0.0] - 2025-02-22
 
 ### Changed

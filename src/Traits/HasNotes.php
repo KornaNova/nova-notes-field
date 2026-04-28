@@ -13,17 +13,20 @@ trait HasNotes
      * @param string $note The note text which can contain raw HTML.
      * @param bool $user Enables or disables the use of `Auth::guard(config('nova.guard'))->user()` to set as the creator.
      * @param bool $system Defines whether the note is system created and can be deleted or not.
+     * @param array $extra Optional task fields: due_date, assigned_to, completed_at, pinned_at.
      * @return \Outl1ne\NovaNotesField\Models\Note
      **/
-    public function addNote($note, $user = true, $system = true)
+    public function addNote($note, $user = true, $system = true, array $extra = [])
     {
         $userId = $user ? Auth::guard(config('nova.guard'))->id() : null;
 
-        return $this->notes()->create([
+        $allowed = array_intersect_key($extra, array_flip(['due_date', 'assigned_to', 'completed_at', 'pinned_at']));
+
+        return $this->notes()->create(array_merge([
             'text' => $note,
             'created_by' => $userId,
             'system' => $system,
-        ]);
+        ], $allowed));
     }
 
     /**
@@ -31,13 +34,31 @@ trait HasNotes
      *
      * @param int|string $noteId The ID of the note to edit.
      * @param string $text The note text which can contain raw HTML.
+     * @param array $extra Optional task fields: due_date, assigned_to, completed_at, pinned_at.
      * @return \Outl1ne\NovaNotesField\Models\Note
      **/
-    public function editNote($noteId, $text)
+    public function editNote($noteId, $text, array $extra = [])
+    {
+        $note = $this->notes()->where('id', '=', $noteId)->firstOrFail();
+
+        $allowed = array_intersect_key($extra, array_flip(['due_date', 'assigned_to', 'completed_at', 'pinned_at']));
+
+        $note->update(array_merge(['text' => $text], $allowed));
+        return $note;
+    }
+
+    /**
+     * Mark a note attached to this model as complete or reopened.
+     *
+     * @param int|string $noteId
+     * @param bool $completed
+     * @return \Outl1ne\NovaNotesField\Models\Note
+     **/
+    public function completeNote($noteId, $completed = true)
     {
         $note = $this->notes()->where('id', '=', $noteId)->firstOrFail();
         $note->update([
-            'text' => $text,
+            'completed_at' => $completed ? now() : null,
         ]);
         return $note;
     }

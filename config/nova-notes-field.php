@@ -93,4 +93,22 @@ return [
 
     'display_order' => 'DESC',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Assignable users
+    |--------------------------------------------------------------------------
+    |
+    | Optional callable returning a Collection (or array) of users that can be
+    | assigned to a note. The callable receives the current Request. Each user
+    | should expose `id` and `name` (or `first_name`/`last_name`/`email`).
+    |
+    | Defaults to all users from the configured Nova guard provider.
+    |
+    | Example:
+    | 'assignable_users' => fn ($request) => User::where('is_active', true)->get(),
+    |
+    */
+
+    'assignable_users' => null,
+
 ];

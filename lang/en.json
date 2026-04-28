@@ -12,5 +12,11 @@
   "novaNotesField.systemUserName": "System",
   "novaNotesField.pin": "Pin",
   "novaNotesField.unpin": "Unpin",
-  "novaNotesField.pinned": "Pinned"
+  "novaNotesField.pinned": "Pinned",
+  "novaNotesField.dueDate": "Due date",
+  "novaNotesField.assignee": "Assignee",
+  "novaNotesField.unassigned": "Unassigned",
+  "novaNotesField.complete": "Complete",
+  "novaNotesField.reopen": "Reopen",
+  "novaNotesField.completed": "Completed"
 }
