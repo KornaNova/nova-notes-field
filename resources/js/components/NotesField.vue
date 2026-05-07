@@ -85,7 +85,7 @@ export default {
     },
     classes() {
       const defaultClasses =
-        'notes-field o1-bg-slate-100 dark:o1-bg-slate-800 o1-px-4 o1-pt-4 o1-pb-2 o1-rounded-b-lg o1-overflow-hidden o1-border-b o1-border-gray-200 dark:o1-border-gray-700';
+        'notes-field o1-bg-slate-100 dark:o1-bg-slate-800 o1-px-4 o1-pt-4 o1-pb-2 o1-rounded-b-lg o1-border-b o1-border-gray-200 dark:o1-border-gray-700';
       return defaultClasses + (this.extraClass ? ` ${this.extraClass}` : '');
     },
   },

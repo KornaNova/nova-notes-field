@@ -18,9 +18,11 @@
       :class="{
         'w-full': fullWidth,
         'o1-w-3/5': !fullWidth,
-        'o1-border-primary-400 dark:o1-border-gray-600 o1-bg-white dark:o1-bg-slate-700': !!note.pinned_at,
-        'o1-border-gray-200 dark:o1-border-gray-700 o1-bg-white dark:o1-bg-slate-800': !note.pinned_at,
-        'o1-opacity-60': !!note.completed_at,
+        'o1-border-green-400/40 dark:o1-border-green-400/20 o1-bg-white dark:o1-bg-slate-700':
+          !!note.pinned_at || !!note.due_date,
+        'o1-border-gray-200 dark:o1-border-gray-700 o1-bg-white dark:o1-bg-slate-900':
+          !note.pinned_at && !note.due_date,
+        'o1-opacity-80': !!note.completed_at,
       }"
     >
       <div class="o1-rounded-md o1-w-12 o1-h-12 o1-mr-3 o1-overflow-hidden o1-text-center" style="flex-shrink: 0">
@@ -42,72 +44,76 @@
         </div>
       </div>
 
-      <div class="o1-flex-1">
-        <!-- Title area -->
-        <div class="o1-mb-1">
-          <span class="o1-font-bold o1-text-base o1-text-gray-700 o1-mr-2 dark:o1-text-gray-400">
-            {{ note.created_by_name ? note.created_by_name : __('novaNotesField.systemUserName') }}
-          </span>
+      <div class="o1-flex-1 o1-flex o1-flex-col">
+        <div class="o1-flex o1-justify-between o1-items-center">
+          <!-- Title area -->
+          <div class="o1-mb-1">
+            <span class="o1-font-bold o1-text-base o1-text-gray-700 o1-mr-2 dark:o1-text-gray-300">
+              {{ note.created_by_name ? note.created_by_name : __('novaNotesField.systemUserName') }}
+            </span>
 
-          <span class="o1-text-xs o1-text-gray-700 o1-mr-2 dark:o1-text-gray-400">
-            {{ formattedCreatedAtDate }}{{ note.system ? ` [${__('novaNotesField.systemUserName')}]` : '' }}
-          </span>
+            <span class="o1-text-xs o1-text-gray-700 o1-mr-2 dark:o1-text-gray-300">
+              {{ formattedCreatedAtDate }}{{ note.system ? ` [${__('novaNotesField.systemUserName')}]` : '' }}
+            </span>
 
-          <span v-if="note.pinned_at" class="o1-text-xs o1-font-semibold text-primary-500 o1-mr-2">
-            [{{ __('novaNotesField.pinned') }}]
-          </span>
+            <span
+              v-if="!note.system && note.can_edit"
+              class="o1-text-xs hover:o1-underline o1-cursor-pointer o1-text-primary-400 o1-mr-2"
+              @click="onEditRequested"
+              >[{{ __('novaNotesField.edit') }}]</span
+            >
+            <span
+              v-if="!note.system && note.can_pin"
+              class="o1-text-xs hover:o1-underline o1-cursor-pointer o1-text-primary-400 o1-mr-2"
+              @click="togglePin"
+              >[{{ note.pinned_at ? __('novaNotesField.unpin') : __('novaNotesField.pin') }}]</span
+            >
+            <span
+              v-if="!note.system && note.can_complete"
+              class="o1-text-xs hover:o1-underline o1-cursor-pointer o1-text-primary-400 o1-mr-2"
+              @click="toggleComplete"
+              >[{{ note.completed_at ? __('novaNotesField.reopen') : __('novaNotesField.complete') }}]</span
+            >
+            <span
+              v-if="!note.system && note.can_delete"
+              class="o1-text-xs hover:o1-underline o1-cursor-pointer"
+              style="color: #e74c3c"
+              @click="$emit('onDeleteRequested', note)"
+              >[{{ __('novaNotesField.delete') }}]</span
+            >
+          </div>
 
-          <span v-if="note.completed_at" class="o1-text-xs o1-font-semibold o1-text-green-600 o1-mr-2">
-            [{{ __('novaNotesField.completed') }}]
-          </span>
-
-          <span
-            v-if="!note.system && note.can_edit"
-            class="o1-text-xs hover:o1-underline o1-cursor-pointer o1-text-primary-400 o1-mr-2"
-            @click="onEditRequested"
-            >[{{ __('novaNotesField.edit') }}]</span
+          <!-- Task meta -->
+          <div
+            v-if="note.due_date || note.assignee_name || note.pinned_at || note.completed_at"
+            class="o1-mb-2 o1-text-xs o1-flex o1-gap-2 dark:o1-text-white o1-font-bold o1-text-slate-700"
           >
-          <span
-            v-if="!note.system && note.can_pin"
-            class="o1-text-xs hover:o1-underline o1-cursor-pointer o1-text-primary-400 o1-mr-2"
-            @click="togglePin"
-            >[{{ note.pinned_at ? __('novaNotesField.unpin') : __('novaNotesField.pin') }}]</span
-          >
-          <span
-            v-if="!note.system && note.can_complete"
-            class="o1-text-xs hover:o1-underline o1-cursor-pointer o1-text-primary-400 o1-mr-2"
-            @click="toggleComplete"
-            >[{{ note.completed_at ? __('novaNotesField.reopen') : __('novaNotesField.complete') }}]</span
-          >
-          <span
-            v-if="!note.system && note.can_delete"
-            class="o1-text-xs hover:o1-underline o1-cursor-pointer"
-            style="color: #e74c3c"
-            @click="$emit('onDeleteRequested', note)"
-            >[{{ __('novaNotesField.delete') }}]</span
-          >
-        </div>
+            <div :class="badgeClassName" v-if="note.due_date">
+              <span :class="{ 'o1-text-red-500 o1-font-semibold': isOverdue }">
+                {{ __('novaNotesField.dueDate') }}: {{ formattedDueDate }}
+              </span>
+            </div>
 
-        <!-- Task meta -->
-        <div
-          v-if="note.due_date || note.assignee_name"
-          class="o1-mb-2 o1-flex o1-flex-wrap o1-gap-x-3 o1-text-xs o1-text-gray-600 dark:o1-text-gray-400 o1-font-semibold"
-        >
-          <span v-if="note.due_date" :class="{ 'o1-text-red-500 o1-font-semibold': isOverdue }">
-            {{ __('novaNotesField.dueDate') }}: {{ formattedDueDate }}
-          </span>
-          <span v-if="note.assignee_name"> {{ __('novaNotesField.assignee') }}: {{ note.assignee_name }} </span>
+            <div :class="badgeClassName" class="o1-mr-auto" v-if="note.assignee_name">
+              <span>{{ __('novaNotesField.assignee') }}: {{ note.assignee_name }}</span>
+            </div>
+
+            <div :class="badgeClassName" v-if="note.pinned_at">
+              <span class="o1-text-xs o1-font-semibold o1-text-green-500">
+                {{ __('novaNotesField.pinned') }}
+              </span>
+            </div>
+
+            <div :class="badgeClassName" v-if="note.completed_at">
+              <span class="o1-text-xs o1-font-semibold o1-text-green-500"> {{ __('novaNotesField.completed') }} </span>
+            </div>
+          </div>
         </div>
 
         <!-- Content -->
         <p
           v-html="note.text"
-          class="o1-whitespace-pre-wrap o1-text-base o1-text-gray-800 dark:o1-text-gray-300"
-          :class="{
-            'text-primary-500 o1-font-bold': note.pinned_at,
-            'o1-text-gray-800 dark:o1-text-gray-300': !note.completed_at,
-            'o1-text-gray-700 dark:o1-text-gray-400': !!note.completed_at,
-          }"
+          class="o1-whitespace-pre-wrap o1-text-sm o1-font-medium o1-text-gray-800 dark:o1-text-slate-200"
         ></p>
       </div>
     </div>
@@ -136,6 +142,9 @@ export default {
     loading: false,
   }),
   computed: {
+    badgeClassName() {
+      return 'o1-bg-slate-100 dark:o1-bg-black/40 o1-border-black/5 dark:o1-border-white/15 o1-border o1-rounded o1-px-2 o1-py-1';
+    },
     formattedCreatedAtDate() {
       return format(new Date(this.note.created_at), this.dateFormat);
     },
@@ -149,7 +158,7 @@ export default {
     formattedDueDate() {
       const parts = this.dueDateParts;
       if (!parts) return '';
-      return format(new Date(parts.y, parts.m - 1, parts.d), 'dd MMM yyyy');
+      return format(new Date(parts.y, parts.m - 1, parts.d), 'dd.MM.yyyy');
     },
     isOverdue() {
       const parts = this.dueDateParts;

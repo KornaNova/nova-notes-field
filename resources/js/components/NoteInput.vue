@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-4" :class="fullWidth ? 'w-full' : 'w-3/5'">
+  <div class="mb-4" :class="fullWidth ? 'w-full' : 'o1-w-3/5'">
     <div class="flex">
       <div v-if="trixEnabled" class="w-full">
         <Trix
