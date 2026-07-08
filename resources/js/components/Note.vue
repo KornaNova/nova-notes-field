@@ -18,10 +18,9 @@
       :class="{
         'w-full': fullWidth,
         'o1-w-3/5': !fullWidth,
-        'o1-border-green-400/40 dark:o1-border-green-400/20 o1-bg-white dark:o1-bg-slate-700':
+        'o1-border-green-400/40 dark:o1-border-green-400/20 o1-bg-white dark:o1-bg-gray-900':
           !!note.pinned_at || !!note.due_date,
-        'o1-border-gray-200 dark:o1-border-gray-700 o1-bg-white dark:o1-bg-slate-900':
-          !note.pinned_at && !note.due_date,
+        'o1-border-gray-200 dark:o1-border-gray-700 o1-bg-white dark:o1-bg-gray-900': !note.pinned_at && !note.due_date,
         'o1-opacity-80': !!note.completed_at,
       }"
     >
@@ -86,7 +85,7 @@
           <!-- Task meta -->
           <div
             v-if="note.due_date || note.assignee_name || note.pinned_at || note.completed_at"
-            class="o1-mb-2 o1-text-xs o1-flex o1-gap-2 dark:o1-text-white o1-font-bold o1-text-slate-700"
+            class="o1-mb-2 o1-text-xs o1-flex o1-gap-2 dark:o1-text-white o1-font-bold o1-text-gray-700"
           >
             <div :class="badgeClassName" v-if="note.due_date">
               <span :class="{ 'o1-text-red-500 o1-font-semibold': isOverdue }">
@@ -113,7 +112,7 @@
         <!-- Content -->
         <p
           v-html="note.text"
-          class="o1-whitespace-pre-wrap o1-text-sm o1-font-medium o1-text-gray-800 dark:o1-text-slate-200"
+          class="o1-whitespace-pre-wrap o1-text-sm o1-font-medium o1-text-gray-800 dark:o1-text-gray-200"
         ></p>
       </div>
     </div>
@@ -143,7 +142,7 @@ export default {
   }),
   computed: {
     badgeClassName() {
-      return 'o1-bg-slate-100 dark:o1-bg-black/40 o1-border-black/5 dark:o1-border-white/15 o1-border o1-rounded o1-px-2 o1-py-1';
+      return 'o1-bg-gray-100 dark:o1-bg-black/40 o1-border-black/5 dark:o1-border-white/15 o1-border o1-rounded o1-px-2 o1-py-1';
     },
     formattedCreatedAtDate() {
       return format(new Date(this.note.created_at), this.dateFormat);

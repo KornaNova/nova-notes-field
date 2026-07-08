@@ -95,17 +95,9 @@ export default {
 </script>
 
 <style lang="scss">
-$white: #fff;
-$slate300: #cbd5e1;
-$slate400: #94a3b8;
-$slate500: #64748b;
-$slate600: #475569;
-$slate700: #334155;
-$slate900: #0f172a;
-
-$red400: #f87171;
-$red500: #ef4444;
-
+// Colors resolve to Nova's theme-driven CSS variables (its dynamic "gray",
+// formerly a static "slate") so this control tracks the active Nova theme
+// instead of hardcoded slate/white/red values.
 .nova-notes-multiselect {
   .multiselect {
     min-height: 36px;
@@ -118,38 +110,38 @@ $red500: #ef4444;
   .multiselect__tags {
     --tw-border-opacity: 1;
     border-width: 1px;
-    border-color: $slate300;
-    background-color: $white;
-    color: $slate600;
+    border-color: rgba(var(--colors-gray-300));
+    background-color: rgba(var(--colors-white));
+    color: rgba(var(--colors-gray-600));
     padding: 6px 56px 0 6px;
     min-height: 36px;
     border-radius: 4px;
     overflow: hidden;
 
     .dark & {
-      border-color: $slate700;
-      background-color: $slate900;
-      color: $slate400;
+      border-color: rgba(var(--colors-gray-700));
+      background-color: rgba(var(--colors-gray-900));
+      color: rgba(var(--colors-gray-400));
     }
   }
 
   .multiselect__input {
     border: none;
-    background-color: $white;
+    background-color: rgba(var(--colors-white));
     color: rgba(var(--colors-gray-400));
     font-size: 14px;
     line-height: 14px;
     padding-left: 8px;
 
     .dark & {
-      background-color: $slate900;
-      color: $slate400;
+      background-color: rgba(var(--colors-gray-900));
+      color: rgba(var(--colors-gray-400));
     }
   }
 
   .multiselect__single {
-    background-color: $white;
-    color: $slate600;
+    background-color: rgba(var(--colors-white));
+    color: rgba(var(--colors-gray-600));
     font-size: 14px;
     line-height: 18px;
     font-weight: 700;
@@ -159,7 +151,7 @@ $red500: #ef4444;
 
     .dark & {
       color: rgba(var(--colors-gray-400));
-      background-color: $slate900;
+      background-color: rgba(var(--colors-gray-900));
     }
   }
 
@@ -170,10 +162,10 @@ $red500: #ef4444;
     min-height: 16px;
     line-height: 16px;
     cursor: default;
-    color: $slate600;
+    color: rgba(var(--colors-gray-600));
 
     .dark & {
-      color: $slate500;
+      color: rgba(var(--colors-gray-500));
     }
   }
 
@@ -183,14 +175,14 @@ $red500: #ef4444;
   }
 
   .multiselect__spinner {
-    background-color: $white;
-    color: $slate600;
+    background-color: rgba(var(--colors-white));
+    color: rgba(var(--colors-gray-600));
     height: 34px;
     border-radius: 4px;
 
     .dark & {
-      background-color: $slate900;
-      color: $slate400;
+      background-color: rgba(var(--colors-gray-900));
+      color: rgba(var(--colors-gray-400));
     }
 
     &:before,
@@ -200,57 +192,57 @@ $red500: #ef4444;
   }
 
   .multiselect__content-wrapper {
-    border-color: $slate300;
+    border-color: rgba(var(--colors-gray-300));
     transition: none;
 
     .dark & {
-      border-color: $slate700;
+      border-color: rgba(var(--colors-gray-700));
     }
 
     li > span.multiselect__option {
-      background-color: $white;
-      color: $slate400;
+      background-color: rgba(var(--colors-white));
+      color: rgba(var(--colors-gray-400));
       min-height: 32px;
       font-size: 14px;
       line-height: 14px;
 
       .dark & {
-        background-color: $slate900;
+        background-color: rgba(var(--colors-gray-900));
       }
     }
 
     .multiselect__element {
-      background-color: $white;
-      color: $slate600;
+      background-color: rgba(var(--colors-white));
+      color: rgba(var(--colors-gray-600));
 
       .dark & {
-        background-color: $slate900;
-        color: $slate400;
+        background-color: rgba(var(--colors-gray-900));
+        color: rgba(var(--colors-gray-400));
       }
 
       .multiselect__option {
-        color: $slate600;
+        color: rgba(var(--colors-gray-600));
         padding: 8px 12px;
         min-height: 32px;
         font-size: 14px;
         line-height: 14px;
 
         .dark & {
-          color: $slate400;
+          color: rgba(var(--colors-gray-400));
         }
 
         &.multiselect__option--selected {
           color: rgba(var(--colors-primary-500));
-          background-color: $white;
+          background-color: rgba(var(--colors-white));
 
           .dark & {
-            background-color: $slate900;
+            background-color: rgba(var(--colors-gray-900));
           }
         }
 
         &.multiselect__option--highlight {
           background-color: rgba(var(--colors-primary-500));
-          color: $white;
+          color: rgba(var(--colors-white));
 
           &::after {
             background-color: rgba(var(--colors-primary-500));
@@ -258,10 +250,10 @@ $red500: #ef4444;
           }
 
           &.multiselect__option--selected {
-            background-color: $red400;
+            background-color: rgba(var(--colors-red-400));
 
             .dark & {
-              background-color: $red400;
+              background-color: rgba(var(--colors-red-400));
             }
           }
         }
