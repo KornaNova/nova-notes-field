@@ -1,39 +1,51 @@
 <template>
-  <div class="nova-notes-multiselect o1-max-w-[260px]">
-    <multiselect
-      ref="multiselect"
-      :value="selected"
-      :options="computedOptions"
-      track-by="value"
-      label="label"
-      :multiple="false"
-      :close-on-select="true"
-      :placeholder="placeholder"
-      :allow-empty="true"
-      selectLabel=""
-      selectedLabel=""
-      deselectLabel=""
-      tagPlaceholder=""
-      @select="onSelect"
-      @open="onOpen"
-      @close="onClose"
+  <div class="nova-notes-multiselect o1-flex o1-items-center o1-gap-2">
+    <div class="o1-flex-1 o1-max-w-[260px]">
+      <multiselect
+        ref="multiselect"
+        :value="selected"
+        :options="computedOptions"
+        track-by="value"
+        label="label"
+        :multiple="false"
+        :close-on-select="true"
+        :placeholder="placeholder"
+        :allow-empty="true"
+        selectLabel=""
+        selectedLabel=""
+        deselectLabel=""
+        tagPlaceholder=""
+        @select="onSelect"
+        @open="onOpen"
+        @close="onClose"
+      >
+        <template #clear>
+          <div v-if="selected" class="multiselect__clear" @mousedown.prevent.stop="clear" />
+        </template>
+
+        <template #singleLabel>
+          <span>{{ selected ? selected.label : '' }}</span>
+        </template>
+
+        <template #noOptions>
+          {{ noOptionsText }}
+        </template>
+
+        <template #noResult>
+          {{ noResultText }}
+        </template>
+      </multiselect>
+    </div>
+
+    <button
+      v-if="meOption"
+      type="button"
+      class="o1-shrink-0 o1-text-xs o1-font-bold o1-px-2 o1-py-1 o1-rounded o1-border o1-cursor-pointer o1-bg-white dark:o1-bg-gray-900 o1-border-gray-300 dark:o1-border-gray-700 o1-text-gray-600 dark:o1-text-gray-400 hover:o1-border-gray-400 dark:hover:o1-border-gray-500 disabled:o1-opacity-50 disabled:o1-cursor-default"
+      :disabled="isAssignedToMe"
+      @click="assignToMe"
     >
-      <template #clear>
-        <div v-if="selected" class="multiselect__clear" @mousedown.prevent.stop="clear" />
-      </template>
-
-      <template #singleLabel>
-        <span>{{ selected ? selected.label : '' }}</span>
-      </template>
-
-      <template #noOptions>
-        {{ noOptionsText }}
-      </template>
-
-      <template #noResult>
-        {{ noResultText }}
-      </template>
-    </multiselect>
+      {{ __('novaNotesField.assignToMe') }}
+    </button>
   </div>
 </template>
 
@@ -62,10 +74,21 @@ export default {
       const id = Number(this.modelValue);
       return this.computedOptions.find(o => o.value === id) || null;
     },
+    // The /users endpoint sorts the authenticated user first.
+    meOption() {
+      return this.computedOptions[0] || null;
+    },
+    isAssignedToMe() {
+      return !!this.meOption && !!this.selected && this.selected.value === this.meOption.value;
+    },
   },
   methods: {
     onSelect(option) {
       this.$emit('update:modelValue', option ? option.value : null);
+    },
+    assignToMe() {
+      if (!this.meOption) return;
+      this.$emit('update:modelValue', this.meOption.value);
     },
     clear() {
       this.$emit('update:modelValue', null);

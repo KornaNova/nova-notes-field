@@ -25,6 +25,7 @@
       @noteEdited="onNoteEdited"
       @pinChanged="onNotePinChanged"
       @completeChanged="onNoteCompleteChanged"
+      @dueDateChanged="onNoteDueDateChanged"
       @onDeleteRequested="onNoteDeleteRequested"
     />
 
@@ -163,6 +164,9 @@ export default {
       this.fetchNotes();
     },
     onNoteCompleteChanged() {
+      this.fetchNotes();
+    },
+    onNoteDueDateChanged() {
       this.fetchNotes();
     },
     onNoteDeleteRequested(note) {

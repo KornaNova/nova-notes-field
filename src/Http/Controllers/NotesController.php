@@ -83,6 +83,20 @@ class NotesController extends Controller
         return response('', 204);
     }
 
+    // PATCH /notes/{note}/due-date
+    public function updateDueDate(Request $request, Note $note)
+    {
+        if (!$note->can_edit) return response()->json(['error' => 'unauthorized'], 400);
+
+        $request->validate(['due_date' => ['nullable', 'date_format:Y-m-d']]);
+
+        $note->update([
+            'due_date' => $this->normalizeDueDate($request->input('due_date')),
+        ]);
+
+        return response('', 204);
+    }
+
     // GET /users
     public function getAssignableUsers(Request $request)
     {

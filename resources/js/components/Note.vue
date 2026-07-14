@@ -87,10 +87,29 @@
             v-if="note.due_date || note.assignee_name || note.pinned_at || note.completed_at"
             class="o1-mb-2 o1-text-xs o1-flex o1-gap-2 dark:o1-text-white o1-font-bold o1-text-gray-700"
           >
-            <div :class="badgeClassName" v-if="note.due_date">
+            <div
+              :class="[
+                badgeClassName,
+                canEditDueDate
+                  ? 'o1-relative o1-cursor-pointer hover:o1-border-gray-400 dark:hover:o1-border-gray-500'
+                  : '',
+              ]"
+              v-if="note.due_date"
+              @click="onDueDateClicked"
+            >
               <span :class="{ 'o1-text-red-500 o1-font-semibold': isOverdue }">
                 {{ __('novaNotesField.dueDate') }}: {{ formattedDueDate }}
               </span>
+
+              <input
+                v-if="canEditDueDate"
+                ref="dueDateInput"
+                type="date"
+                class="o1-absolute o1-inset-0 o1-w-full o1-h-full o1-opacity-0 o1-cursor-pointer"
+                :value="dueDateInputValue"
+                :disabled="loading"
+                @change="onDueDateChanged"
+              />
             </div>
 
             <div :class="badgeClassName" class="o1-mr-auto" v-if="note.assignee_name">
@@ -132,7 +151,7 @@ export default {
     trixEnabled: { type: Boolean, default: false },
     users: { type: Array, default: () => [] },
   },
-  emits: ['noteEdited', 'pinChanged', 'completeChanged', 'onDeleteRequested'],
+  emits: ['noteEdited', 'pinChanged', 'completeChanged', 'dueDateChanged', 'onDeleteRequested'],
   data: () => ({
     isEditing: false,
     editedText: '',
@@ -167,6 +186,12 @@ export default {
       today.setHours(0, 0, 0, 0);
       return due < today;
     },
+    canEditDueDate() {
+      return !this.note.system && !!this.note.can_edit;
+    },
+    dueDateInputValue() {
+      return this.note.due_date ? String(this.note.due_date).slice(0, 10) : '';
+    },
   },
   methods: {
     onEditRequested() {
@@ -189,6 +214,43 @@ export default {
         Nova.$emit('metric-refresh');
       } catch (e) {
         Nova.error('Unknown error when trying to edit the note.');
+      }
+
+      this.loading = false;
+    },
+    onDueDateClicked() {
+      if (!this.canEditDueDate || this.loading) return;
+
+      const input = this.$refs.dueDateInput;
+      if (!input) return;
+
+      // showPicker() is unsupported in older browsers, which fall back to the
+      // input's own click-to-open behaviour.
+      if (typeof input.showPicker !== 'function') return;
+
+      try {
+        input.showPicker();
+      } catch (e) {
+        input.focus();
+      }
+    },
+    onDueDateChanged(event) {
+      const dueDate = event.target.value || null;
+      if (dueDate === (this.dueDateInputValue || null)) return;
+
+      this.updateDueDate(dueDate);
+    },
+    async updateDueDate(dueDate) {
+      this.loading = true;
+
+      try {
+        await Nova.request().patch(`/nova-vendor/nova-notes/notes/${this.note.id}/due-date`, {
+          due_date: dueDate,
+        });
+        this.$emit('dueDateChanged', this.note);
+        Nova.$emit('metric-refresh');
+      } catch (e) {
+        Nova.error('Unknown error when trying to update the due date.');
       }
 
       this.loading = false;

@@ -15,6 +15,7 @@
   "novaNotesField.pinned": "Pinned",
   "novaNotesField.dueDate": "Due",
   "novaNotesField.assignee": "Assignee",
+  "novaNotesField.assignToMe": "Assign to me",
   "novaNotesField.unassigned": "Unassigned",
   "novaNotesField.complete": "Complete",
   "novaNotesField.reopen": "Reopen",
