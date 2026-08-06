@@ -199,9 +199,9 @@ class NotesController extends Controller
                 $modelClass = $resourceClass::$model;
 
                 if (method_exists($modelClass, 'trashed')) {
-                    $model = $modelClass::withTrashed()->find($resourceId);
+                    $model = $modelClass::withTrashed()->withoutGlobalScopes()->find($resourceId);
                 } else {
-                    $model = $modelClass::find($resourceId);
+                    $model = $modelClass::withoutGlobalScopes()->find($resourceId);
                 }
 
                 if (empty($model)) $errors['resourceId'] = 'not_found';
